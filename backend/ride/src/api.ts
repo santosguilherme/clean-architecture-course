@@ -34,7 +34,6 @@ app.post("/passengers", async (req, res) => {
       passengerId,
     });
   } catch (e: any) {
-    console.log(e);
     res.status(422).send(e.message);
   }
 });
