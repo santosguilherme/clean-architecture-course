@@ -1,4 +1,4 @@
-import Cpf from "../src/Cpf";
+import Cpf from "./Cpf";
 
 test.each(["83432616074", "74587887803", "87175659520"])(
   "validates the cpf %s",

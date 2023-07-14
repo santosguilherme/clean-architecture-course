@@ -72,7 +72,7 @@ test("registers the driver", async () => {
     name: "John Doe",
     email: "john.doe@gmail.com",
     document: "83432616074",
-    carPlate: "AAA999",
+    carPlate: "AAA9999",
   };
   const response1 = await axios.post("http://localhost:3000/drivers", input);
   const output1 = response1.data;

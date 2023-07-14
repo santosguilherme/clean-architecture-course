@@ -1,4 +1,4 @@
-import Ride from "../src/Ride";
+import Ride from "./Ride";
 
 test("calculates the price of the ride during the day", () => {
   const ride = new Ride();
