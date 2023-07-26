@@ -1,58 +1,33 @@
-import express from "express";
+import "dotenv/config";
 import CalculateRide from "./application/usecase/CalculateRide";
-import CreatePassenger from "./application/usecase/CreatePassenger";
 import CreateDriver from "./application/usecase/CreateDriver";
-import GetPassenger from "./application/usecase/GetPassenger";
+import CreatePassenger from "./application/usecase/CreatePassenger";
 import GetDriver from "./application/usecase/GetDriver";
+import GetPassenger from "./application/usecase/GetPassenger";
+import VercelPostgresAdapter from "./infra/database/VercelPostgresAdapter";
+import ExpressAdapter from "./infra/http/ExpressAdapter";
+import MainController from "./infra/http/MainController";
 import DriverRepositoryDatabase from "./infra/repository/DriverRepositoryDatabase";
 import PassengerRepositoryDatabase from "./infra/repository/PassengerRepositoryDatabase";
-import "dotenv/config";
+// import HapiAdapter from "./infra/http/HapiAdapter";
 
-// driver, primary actor, inbound adapter
-const app = express();
-
-app.use(express.json());
-
-app.post("/calculate_ride", async function (req, res) {
-  try {
-    const usecase = new CalculateRide();
-    const output = await usecase.execute(req.body);
-    res.json(output);
-  } catch (error: any) {
-    res.status(422).send(error.message);
-  }
-});
-
-app.post("/passengers", async function (req, res) {
-  try {
-    const usecase = new CreatePassenger(new PassengerRepositoryDatabase());
-    const output = await usecase.execute(req.body);
-    res.json(output);
-  } catch (error: any) {
-    res.status(422).send(error.message);
-  }
-});
-
-app.get("/passengers/:passengerId", async function (req, res) {
-  const usecase = new GetPassenger(new PassengerRepositoryDatabase());
-  const output = await usecase.execute({ passengerId: req.params.passengerId });
-  res.json(output);
-});
-
-app.post("/drivers", async function (req, res) {
-  try {
-    const usecase = new CreateDriver(new DriverRepositoryDatabase());
-    const output = await usecase.execute(req.body);
-    res.json(output);
-  } catch (error: any) {
-    res.status(422).send(error.message);
-  }
-});
-
-app.get("/drivers/:driverId", async function (req, res) {
-  const usecase = new GetDriver(new DriverRepositoryDatabase());
-  const output = await usecase.execute({ driverId: req.params.driverId });
-  res.json(output);
-});
-
-app.listen(3000);
+// Main Composition Root
+const connection = new VercelPostgresAdapter();
+const passengerRepository = new PassengerRepositoryDatabase(connection);
+const driverRepository = new DriverRepositoryDatabase(connection);
+const calculateRide = new CalculateRide();
+const createPassenger = new CreatePassenger(passengerRepository);
+const getPassenger = new GetPassenger(passengerRepository);
+const createDriver = new CreateDriver(driverRepository);
+const getDriver = new GetDriver(driverRepository);
+const httpServer = new ExpressAdapter();
+//const httpServer  = new  HapiAdapter()
+new MainController(
+  httpServer,
+  calculateRide,
+  createPassenger,
+  getPassenger,
+  createDriver,
+  getDriver
+);
+httpServer.listen(3000);

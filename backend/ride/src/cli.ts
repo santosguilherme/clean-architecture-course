@@ -1,19 +1,12 @@
 import CreatePassenger from "./application/usecase/CreatePassenger";
+import CLIController from "./infra/cli/CLIController";
+import NodeInputOutput from "./infra/cli/NodeInputOutput";
+import VercelPostgresAdapter from "./infra/database/VercelPostgresAdapter";
 import PassengerRepositoryDatabase from "./infra/repository/PassengerRepositoryDatabase";
 
-// driver, primary actor, inbound adapter
-process.stdin.on("data", async function (chunk) {
-  const command = chunk.toString().replace(/\n/g, "");
-  if (command.startsWith("create-passenger")) {
-    try {
-      const [name, email, document] = command
-        .replace("create-passenger ", "")
-        .split(" ");
-      const usecase = new CreatePassenger(new PassengerRepositoryDatabase());
-      const output = await usecase.execute({ name, email, document });
-      console.log(output);
-    } catch (error: any) {
-      console.error(error.message);
-    }
-  }
-});
+// Main Composition Root
+const connection = new VercelPostgresAdapter();
+const passengerRepository = new PassengerRepositoryDatabase(connection);
+const createPassenger = new CreatePassenger(passengerRepository);
+const inputOutput = new NodeInputOutput();
+new CLIController(inputOutput, createPassenger);
