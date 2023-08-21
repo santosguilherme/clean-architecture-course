@@ -1,6 +1,6 @@
 import DatabaseConnection from "../database/DatabaseConnection";
 import DriverRepository from "../../application/repository/DriverRepository";
-import Driver from "../../domain/Driver";
+import Driver from "../../domain/driver/Driver";
 
 export default class DriverRepositoryDatabase implements DriverRepository {
   constructor(readonly connection: DatabaseConnection) {}

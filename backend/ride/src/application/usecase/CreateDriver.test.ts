@@ -2,7 +2,7 @@ import CreateDriver from "./CreateDriver";
 import GetDriver from "./GetDriver";
 import DriverRepository from "../../infra/repository/DriverRepositoryDatabase";
 import DriverRepositoryDatabase from "../../infra/repository/DriverRepositoryDatabase";
-import Driver from "../../domain/Driver";
+import Driver from "../../domain/driver/Driver";
 import VercelPostgresAdapter from "../../infra/database/VercelPostgresAdapter";
 
 test("registers the driver", async () => {
