@@ -1,14 +1,15 @@
+import VercelPostgresAdapter from "../../infra/database/VercelPostgresAdapter";
+import RepositoryFactoryDatabase from "../../infra/factory/RepositoryFactoryDatabase";
+import DriverRepositoryDatabase from "../../infra/repository/DriverRepositoryDatabase";
+import PassengerRepositoryDatabase from "../../infra/repository/PassengerRepositoryDatabase";
+import RideRepositoryDatabase from "../../infra/repository/RideRepositoryDatabase";
 import AcceptRide from "./AcceptRide";
 import CreateDriver from "./CreateDriver";
 import CreatePassenger from "./CreatePassenger";
 import GetRide from "./GetRide";
 import RequestRide from "./RequestRide";
-import VercelPostgresAdapter from "../../infra/database/VercelPostgresAdapter";
-import DriverRepositoryDatabase from "../../infra/repository/DriverRepositoryDatabase";
-import PassengerRepositoryDatabase from "../../infra/repository/PassengerRepositoryDatabase";
-import RideRepositoryDatabase from "../../infra/repository/RideRepositoryDatabase";
 
-test("Accepts a ride", async function () {
+test("accepts a ride", async function () {
 	const inputCreatePassenger = {
 		name: "John Doe",
 		email: "john.doe@gmail.com",
@@ -50,7 +51,7 @@ test("Accepts a ride", async function () {
 	const acceptRide = new AcceptRide(new RideRepositoryDatabase(connection));
 	const outputAcceptRide = await acceptRide.execute(inputAcceptRide);
 
-	const getRide = new GetRide(new RideRepositoryDatabase(connection));
+	const getRide = new GetRide(new RepositoryFactoryDatabase(connection));
 	const outputGetRide = await getRide.execute({ rideId: outputRequestRide.rideId });
 	expect(outputGetRide.driverId).toBe(outputCreateDriver.driverId);
 	expect(outputGetRide.status).toBe("accepted");

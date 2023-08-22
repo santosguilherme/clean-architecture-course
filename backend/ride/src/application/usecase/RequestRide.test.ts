@@ -4,6 +4,7 @@ import GetRide from "./GetRide";
 import RequestRide from "./RequestRide";
 import PassengerRepositoryDatabase from "../../infra/repository/PassengerRepositoryDatabase";
 import RideRepositoryDatabase from "../../infra/repository/RideRepositoryDatabase";
+import RepositoryFactoryDatabase from "../../infra/factory/RepositoryFactoryDatabase";
 
 test("requests a ride", async function () {
 	const inputCreatePassenger = {
@@ -55,7 +56,7 @@ test("gets a ride", async function () {
 	};
 	const requestRide = new RequestRide(new RideRepositoryDatabase(connection));
 	const outputRequestRide = await requestRide.execute(inputRequestRide);
-	const getRide = new GetRide(new RideRepositoryDatabase(connection));
+	const getRide = new GetRide(new RepositoryFactoryDatabase(connection));
 	const outputGetRide = await getRide.execute({ rideId: outputRequestRide.rideId });
 	expect(outputGetRide.rideId).toBeDefined();
 	expect(outputGetRide.status).toBe("requested");

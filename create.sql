@@ -1,5 +1,4 @@
-drop table cac.passenger;
-drop schema cac;
+drop schema cac cascade;
 create schema cac;
 
 create table cac.passenger (

@@ -1,26 +1,26 @@
+import UsecaseFactory from "../../application/factory/UsecaseFactory";
 import CalculateRide from "../../application/usecase/CalculateRide";
 import CreateDriver from "../../application/usecase/CreateDriver";
 import CreatePassenger from "../../application/usecase/CreatePassenger";
 import GetDriver from "../../application/usecase/GetDriver";
 import GetPassenger from "../../application/usecase/GetPassenger";
+import inject from "../di/Inject";
 import HttpServer from "./HttpServer";
 
 export default class MainController {
-  constructor(
-    httpServer: HttpServer,
-    calculateRide: CalculateRide,
-    createPassenger: CreatePassenger,
-    getPassenger: GetPassenger,
-    createDriver: CreateDriver,
-    getDriver: GetDriver
-  ) {
+  @inject("calculateRide")
+	calculateRide?: CalculateRide;
+	@inject("createPassenger")
+	createPassenger?: CreatePassenger;
+  
+  constructor(httpServer: HttpServer, usecaseFactory: UsecaseFactory) {
     httpServer.on("post", "/calculate_ride", async (params: any, body: any) => {
-      const output = await calculateRide.execute(body);
+      const output = await this.calculateRide?.execute(body);
       return output;
     });
 
     httpServer.on("post", "/passengers", async (params: any, body: any) => {
-      const output = await createPassenger.execute(body);
+      const output = await this.createPassenger?.execute(body);
       return output;
     });
 
@@ -28,7 +28,7 @@ export default class MainController {
       "get",
       "/passengers/:{passengerId}",
       async (params: any, body: any) => {
-        const output = await getPassenger.execute({
+        const output = await usecaseFactory.createGetPassenger().execute({
           passengerId: params.passengerId,
         });
         return output;
@@ -36,7 +36,7 @@ export default class MainController {
     );
 
     httpServer.on("post", "/drivers", async (params: any, body: any) => {
-      const output = await createDriver.execute(body);
+      const output = await usecaseFactory.createCreateDriver().execute(body);
       return output;
     });
 
@@ -44,11 +44,16 @@ export default class MainController {
       "get",
       "/drivers/:{driverId}",
       async (params: any, body: any) => {
-        const output = await getDriver.execute({
+        const output = await usecaseFactory.createGetDriver().execute({
           driverId: params.driverId,
         });
         return output;
       }
     );
+
+    httpServer.on("post", "/request_ride", async function (params: any, body: any) {
+			const output = await usecaseFactory.createRequestRide().execute(body);
+			return output;
+		});
   }
 }

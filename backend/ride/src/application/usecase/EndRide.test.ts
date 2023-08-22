@@ -9,8 +9,9 @@ import DriverRepositoryDatabase from "../../infra/repository/DriverRepositoryDat
 import PassengerRepositoryDatabase from "../../infra/repository/PassengerRepositoryDatabase";
 import RideRepositoryDatabase from "../../infra/repository/RideRepositoryDatabase";
 import VercelPostgresAdapter from "../../infra/database/VercelPostgresAdapter";
+import RepositoryFactoryDatabase from "../../infra/factory/RepositoryFactoryDatabase";
 
-test("ends a ride", async function () {
+test("ends a ride", async () => {
 	const inputCreatePassenger = {
 		name: "John Doe",
 		email: "john.doe@gmail.com",
@@ -66,7 +67,7 @@ test("ends a ride", async function () {
 	const endRide = new EndRide(new RideRepositoryDatabase(connection));
 	await endRide.execute(inputEndRide);
 
-	const getRide = new GetRide(new RideRepositoryDatabase(connection));
+	const getRide = new GetRide(new RepositoryFactoryDatabase(connection));
 	const outputGetRide = await getRide.execute({ rideId: outputRequestRide.rideId });
 	expect(outputGetRide.driverId).toBe(outputCreateDriver.driverId);
 	expect(outputGetRide.status).toBe("completed");
