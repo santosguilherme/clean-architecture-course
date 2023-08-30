@@ -1,7 +1,8 @@
 import RepositoryFactory from "../factory/RepositoryFactory";
-import DriverRepository from "../repository/DriverRepository";
-import PassengerRepository from "../repository/PassengerRepository";
+import AccountGateway from "../gateway/AccountGateway";
 import RideRepository from "../repository/RideRepository";
+import AxiosAdapter from "../../infra/http/AxiosAdapter";
+import AccountGatewayHttp from "../../infra/gateway/AccountGatewayHttp";
 
 type Input = {
   rideId: string
@@ -22,22 +23,21 @@ type Output = {
 
 export default class GetRide {
   rideRepository: RideRepository;
-	passengerRepository: PassengerRepository;
-	driverRepository: DriverRepository;
 
-  constructor(readonly repositoryFactory: RepositoryFactory){
+  constructor(
+    readonly repositoryFactory: RepositoryFactory,
+    readonly accountGateway: AccountGateway = new AccountGatewayHttp(new AxiosAdapter())
+  ){
     this.rideRepository = repositoryFactory.createRideRepository();
-		this.passengerRepository = repositoryFactory.createPassengerRepository();
-		this.driverRepository = repositoryFactory.createDriverRepository();
   }
 
   async execute(input: Input): Promise<Output> {
     const ride  = await this.rideRepository.get(input.rideId);
     const { rideId, driverId, status, requestDate, acceptDate, startDate, endDate, passengerId } = ride;
-    const passenger = await this.passengerRepository.get(passengerId);
+    const passenger = await this.accountGateway.getPassenger(passengerId);
 		let driver;
 		if (driverId) {
-			driver = await this.driverRepository.get(driverId);
+			driver = await this.accountGateway.getDriver(driverId);
 		}
     return {
       rideId,

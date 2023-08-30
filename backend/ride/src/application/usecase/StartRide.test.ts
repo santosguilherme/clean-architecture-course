@@ -1,14 +1,12 @@
 import AcceptRide from "./AcceptRide";
-import CreateDriver from "./CreateDriver";
-import CreatePassenger from "./CreatePassenger";
 import GetRide from "./GetRide";
 import RequestRide from "./RequestRide";
 import StartRide from "./StartRide";
-import DriverRepositoryDatabase from "../../infra/repository/DriverRepositoryDatabase";
-import PassengerRepositoryDatabase from "../../infra/repository/PassengerRepositoryDatabase";
 import RideRepositoryDatabase from "../../infra/repository/RideRepositoryDatabase";
 import VercelPostgresAdapter from "../../infra/database/VercelPostgresAdapter";
 import RepositoryFactoryDatabase from "../../infra/factory/RepositoryFactoryDatabase";
+import AccountGatewayHttp from "../../infra/gateway/AccountGatewayHttp";
+import AxiosAdapter from "../../infra/http/AxiosAdapter";
 
 test("starts a ride", async function () {
 	const inputCreatePassenger = {
@@ -17,9 +15,9 @@ test("starts a ride", async function () {
 		document: "83432616074"
 	};
 	const connection = new VercelPostgresAdapter();
-	const createPassenger = new CreatePassenger(new PassengerRepositoryDatabase(connection));
-	const outputCreatePassenger = await createPassenger.execute(inputCreatePassenger);
-
+	const accountGateway = new AccountGatewayHttp(new AxiosAdapter());
+	const outputCreatePassenger = await accountGateway.createPassenger(inputCreatePassenger);
+	
 	const inputRequestRide = {
 		passengerId: outputCreatePassenger.passengerId,
 		from: {
@@ -34,16 +32,15 @@ test("starts a ride", async function () {
 	};
 	const requestRide = new RequestRide(new RideRepositoryDatabase(connection));
 	const outputRequestRide = await requestRide.execute(inputRequestRide);
-
+	
 	const inputCreateDriver = {
 		name: "John Doe",
 		email: "john.doe@gmail.com",
 		document: "83432616074",
 		carPlate: "AAA9999"
 	};
-	const createDriver = new CreateDriver(new DriverRepositoryDatabase(connection));
-	const outputCreateDriver = await createDriver.execute(inputCreateDriver);
-
+	const outputCreateDriver = await accountGateway.createDriver(inputCreateDriver);
+	
 	const inputAcceptRide = {
 		rideId: outputRequestRide.rideId,
 		driverId: outputCreateDriver.driverId,
@@ -61,8 +58,10 @@ test("starts a ride", async function () {
 
 	const getRide = new GetRide(new RepositoryFactoryDatabase(connection));
 	const outputGetRide = await getRide.execute({ rideId: outputRequestRide.rideId });
+	
 	expect(outputGetRide.driverId).toBe(outputCreateDriver.driverId);
 	expect(outputGetRide.status).toBe("in_progress");
 	expect(outputGetRide.startDate).toEqual(new Date("2021-03-01T10:20:00"));
+
 	await connection.close();
 });

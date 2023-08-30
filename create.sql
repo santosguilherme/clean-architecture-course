@@ -31,3 +31,10 @@ create table cac.ride (
 	end_date timestamp,
 	price numeric
 );
+
+create table cac.transaction (
+	transaction_id uuid primary key,
+	name text,
+	email text,
+	amount numeric
+)

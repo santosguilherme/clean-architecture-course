@@ -1,11 +1,9 @@
 import VercelPostgresAdapter from "../../infra/database/VercelPostgresAdapter";
 import RepositoryFactoryDatabase from "../../infra/factory/RepositoryFactoryDatabase";
-import DriverRepositoryDatabase from "../../infra/repository/DriverRepositoryDatabase";
-import PassengerRepositoryDatabase from "../../infra/repository/PassengerRepositoryDatabase";
+import AccountGatewayHttp from "../../infra/gateway/AccountGatewayHttp";
+import AxiosAdapter from "../../infra/http/AxiosAdapter";
 import RideRepositoryDatabase from "../../infra/repository/RideRepositoryDatabase";
 import AcceptRide from "./AcceptRide";
-import CreateDriver from "./CreateDriver";
-import CreatePassenger from "./CreatePassenger";
 import GetRide from "./GetRide";
 import RequestRide from "./RequestRide";
 
@@ -16,8 +14,8 @@ test("accepts a ride", async function () {
 		document: "83432616074"
 	};
 	const connection = new VercelPostgresAdapter();
-	const createPassenger = new CreatePassenger(new PassengerRepositoryDatabase(connection));
-	const outputCreatePassenger = await createPassenger.execute(inputCreatePassenger);
+	const accountGateway = new AccountGatewayHttp(new AxiosAdapter());
+	const outputCreatePassenger = await accountGateway.createPassenger(inputCreatePassenger);
 
 	const inputRequestRide = {
 		passengerId: outputCreatePassenger.passengerId,
@@ -40,8 +38,7 @@ test("accepts a ride", async function () {
 		document: "83432616074",
 		carPlate: "AAA9999"
 	};
-	const createDriver = new CreateDriver(new DriverRepositoryDatabase(connection));
-	const outputCreateDriver = await createDriver.execute(inputCreateDriver);
+	const outputCreateDriver = await accountGateway.createDriver(inputCreateDriver);
 
 	const inputAcceptRide = {
 		rideId: outputRequestRide.rideId,
