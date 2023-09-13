@@ -12,15 +12,15 @@ export default class RepositoryFactoryDatabase implements RepositoryFactory {
 	constructor (readonly connection: DatabaseConnection) {
 	}
 
-	createUserRepository(): UserRepository {
-		throw new UserRepositoryDatabase(this.connection);
-	}
-
 	createPassengerRepository(): PassengerRepository {
 		return new PassengerRepositoryDatabase(this.connection);
 	}
 
 	createDriverRepository(): DriverRepository {
 		return new DriverRepositoryDatabase(this.connection);
+	}
+
+	createUserRepository(): UserRepository {
+		throw new UserRepositoryDatabase(this.connection);
 	}
 }

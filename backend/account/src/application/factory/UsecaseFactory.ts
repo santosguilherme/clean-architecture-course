@@ -6,8 +6,7 @@ import RepositoryFactory from "./RepositoryFactory";
 
 export default class UsecaseFactory {
 
-	constructor (readonly repositoryFactory: RepositoryFactory) {
-	}
+	constructor (readonly repositoryFactory: RepositoryFactory) {}
 
 	createCreatePassenger () {
 		return new CreatePassenger(this.repositoryFactory.createPassengerRepository(), this.repositoryFactory.createUserRepository());
@@ -18,10 +17,7 @@ export default class UsecaseFactory {
 	}
 
 	createGetPassenger () {
-		console.log("createGetPassenger", this.repositoryFactory.createPassengerRepository(), this.repositoryFactory.createUserRepository());
-		const entity = new GetPassenger(this.repositoryFactory.createPassengerRepository(), this.repositoryFactory.createUserRepository());
-		console.log("createGetPassenger.entity")
-		return entity;
+		return new GetPassenger(this.repositoryFactory.createPassengerRepository(), this.repositoryFactory.createUserRepository());
 	}
 
 	createGetDriver () {

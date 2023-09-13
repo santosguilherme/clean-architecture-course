@@ -25,7 +25,7 @@ test("does not register the passenger with invalid document", async () => {
   expect(output).toBe("Invalid cpf");
 });
 
-test.only("returns the passenger", async () => {
+test("returns the passenger", async () => {
   const input = {
     name: "John Doe",
     email: "john.doe@gmail.com",
@@ -37,7 +37,6 @@ test.only("returns the passenger", async () => {
     `http://localhost:3002/passengers/${output1.passengerId}`
   );
   const output2 = response2.data;
-  console.log({ response2 })
   expect(output2.name).toBe("John Doe");
   expect(output2.email).toBe("john.doe@gmail.com");
   expect(output2.document).toBe("83432616074");

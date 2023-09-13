@@ -14,9 +14,7 @@ export default class MainController {
     });
 
     httpServer.on("get", "/passengers/:{passengerId}", async (params: any, body: any) => {
-        console.log({ params })
         const output = await usecaseFactory.createGetPassenger().execute({ passengerId: params.passengerId });
-        console.log({ output })
         return output;
       }
     );

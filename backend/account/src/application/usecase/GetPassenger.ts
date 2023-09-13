@@ -19,7 +19,6 @@ export default class GetPassenger {
   }
 
   async execute(input: Input): Promise<Output> {
-    console.log("GetPassenger.execute", input)
     const passengerData = await this.passengerRepository.get(input.passengerId);
     const user = await this.userRepository.getByEmail(passengerData.email.value);
     return {
