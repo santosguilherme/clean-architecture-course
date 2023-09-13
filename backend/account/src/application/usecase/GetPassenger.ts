@@ -15,17 +15,16 @@ type Output = {
 
 export default class GetPassenger {
   constructor(readonly passengerRepository: PassengerRepository, readonly userRepository: UserRepository) {
-    console.log("GetPassenger()")
   }
 
   async execute(input: Input): Promise<Output> {
-    const passengerData = await this.passengerRepository.get(input.passengerId);
-    const user = await this.userRepository.getByEmail(passengerData.email.value);
+    const passenger = await this.passengerRepository.get(input.passengerId);
+    const user = await this.userRepository.getByEmail(passenger.email.value);
     return {
-      passengerId: passengerData.passengerId,
-      name: passengerData.name,
-      email: passengerData.email.value,
-      document: passengerData.document.value,
+      passengerId: passenger.passengerId,
+      name: passenger.name,
+      email: passenger.email.value,
+      document: passenger.document.value,
       userId: user.userId
     };
   }
