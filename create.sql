@@ -37,4 +37,12 @@ create table cac.transaction (
 	name text,
 	email text,
 	amount numeric
-)
+);
+
+create table cac.user (
+	user_id uuid primary key,
+	email text,
+	password text,
+	password_type text,
+	salt text
+);

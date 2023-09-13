@@ -13,13 +13,10 @@ export default class MainController {
       return output;
     });
 
-    httpServer.on(
-      "get",
-      "/passengers/:{passengerId}",
-      async (params: any, body: any) => {
-        const output = await usecaseFactory.createGetPassenger().execute({
-          passengerId: params.passengerId,
-        });
+    httpServer.on("get", "/passengers/:{passengerId}", async (params: any, body: any) => {
+        console.log({ params })
+        const output = await usecaseFactory.createGetPassenger().execute({ passengerId: params.passengerId });
+        console.log({ output })
         return output;
       }
     );
@@ -29,13 +26,8 @@ export default class MainController {
       return output;
     });
 
-    httpServer.on(
-      "get",
-      "/drivers/:{driverId}",
-      async (params: any, body: any) => {
-        const output = await usecaseFactory.createGetDriver().execute({
-          driverId: params.driverId,
-        });
+    httpServer.on("get", "/drivers/:{driverId}", async (params: any, body: any) => {
+        const output = await usecaseFactory.createGetDriver().execute({ driverId: params.driverId });
         return output;
       }
     );

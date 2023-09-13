@@ -8,12 +8,14 @@ import Registry from "./infra/di/Registry";
 import UsecaseFactory from "./application/factory/UsecaseFactory";
 import RepositoryFactoryDatabase from "./infra/factory/RepositoryFactoryDatabase";
 import DriverRepositoryDatabase from "./infra/repository/DriverRepositoryDatabase";
+import UserRepositoryDatabase from "./infra/repository/UserRepositoryDatabase";
 
 // Main Composition Root
 const connection = new VercelPostgresAdapter();
 const passengerRepository = new PassengerRepositoryDatabase(connection);
 const driverRepository = new DriverRepositoryDatabase(connection);
-const createPassenger = new CreatePassenger(passengerRepository);
+const userRepository = new UserRepositoryDatabase(connection);
+const createPassenger = new CreatePassenger(passengerRepository, userRepository);
 const repositoryFactory = new RepositoryFactoryDatabase(connection);
 const usecaseFactory = new UsecaseFactory(repositoryFactory);
 const registry = Registry.getInstance();
