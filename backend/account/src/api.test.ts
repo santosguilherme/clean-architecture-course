@@ -13,6 +13,15 @@ test("register the passenger", async () => {
   expect(output1.passengerId).toBeDefined();
 });
 
+test("register the passenger async", async function () {
+	const input = {
+		name: "John Doe",
+		email: "john.doe@gmail.com",
+		document: "83432616074"
+	};
+	await axios.post("http://localhost:3002/passengersAsync", input);
+});
+
 test("does not register the passenger with invalid document", async () => {
   const input = {
     name: "John Doe",

@@ -10,19 +10,28 @@ import RepositoryFactoryDatabase from "./infra/factory/RepositoryFactoryDatabase
 import DriverRepositoryDatabase from "./infra/repository/DriverRepositoryDatabase";
 import UserRepositoryDatabase from "./infra/repository/UserRepositoryDatabase";
 import GetPassenger from "./application/usecase/GetPassenger";
+import RabbitMQAdapter from "./infra/queue/RabbitMQAdapter";
+import QueueController from "./infra/queue/QueueController";
 
 // Main Composition Root
-const connection = new VercelPostgresAdapter();
-const passengerRepository = new PassengerRepositoryDatabase(connection);
-const driverRepository = new DriverRepositoryDatabase(connection);
-const userRepository = new UserRepositoryDatabase(connection);
-const createPassenger = new CreatePassenger(passengerRepository, userRepository);
-const getPassenger = new GetPassenger(passengerRepository, userRepository);
-const repositoryFactory = new RepositoryFactoryDatabase(connection);
-const usecaseFactory = new UsecaseFactory(repositoryFactory);
-const registry = Registry.getInstance();
-registry.provide("createPassenger", createPassenger);
-registry.provide("getPassenger", getPassenger);
-const httpServer = new ExpressAdapter();
-new MainController(httpServer, usecaseFactory);
-httpServer.listen(3002);
+const main = async () => {
+  const connection = new VercelPostgresAdapter();
+  const queue = new RabbitMQAdapter();
+	await queue.connect();
+	const passengerRepository = new PassengerRepositoryDatabase(connection);
+	const driverRepository = new DriverRepositoryDatabase(connection);
+	const userRepository = new UserRepositoryDatabase(connection);
+	const createPassenger = new CreatePassenger(passengerRepository, userRepository);
+  const getPassenger = new GetPassenger(passengerRepository, userRepository);
+	const httpServer = new ExpressAdapter();
+	const repositoryFactory = new RepositoryFactoryDatabase(connection);
+	const usecaseFactory = new UsecaseFactory(repositoryFactory);
+	const registry = Registry.getInstance();
+	registry.provide("createPassenger", createPassenger);
+  registry.provide("getPassenger", getPassenger);
+	new MainController(httpServer, usecaseFactory, queue);
+	new QueueController(queue);
+	httpServer.listen(3002);
+};
+
+main();

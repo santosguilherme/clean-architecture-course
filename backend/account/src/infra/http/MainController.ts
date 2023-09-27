@@ -3,6 +3,7 @@ import CreatePassenger from "../../application/usecase/CreatePassenger";
 import GetPassenger from "../../application/usecase/GetPassenger";
 import inject from "../di/Inject";
 import HttpServer from "./HttpServer";
+import Queue from "../queue/Queue";
 
 export default class MainController {
 	@inject("createPassenger")
@@ -10,12 +11,18 @@ export default class MainController {
   @inject("getPassenger")
 	getPassenger?: GetPassenger;
 
-  constructor(httpServer: HttpServer, usecaseFactory: UsecaseFactory) {
+  constructor(httpServer: HttpServer, usecaseFactory: UsecaseFactory, queue: Queue) {
+    // sync
     httpServer.on("post", "/passengers", async (params: any, body: any) => {
       const output = await this.createPassenger?.execute(body);
       // const output = await usecaseFactory.createCreatePassenger().execute(body);
       return output;
     });
+
+    // command handler - async
+		httpServer.on("post", "/passengersAsync", async (params: any, body: any) => {
+			await queue.publish("createPassenger", body);
+		});
 
     httpServer.on("get", "/passengers/:{passengerId}", async (params: any, body: any) => {
       const output = await this.getPassenger?.execute({ passengerId: params.passengerId });

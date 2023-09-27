@@ -8,6 +8,8 @@ import VercelPostgresAdapter from "../../infra/database/VercelPostgresAdapter";
 import RepositoryFactoryDatabase from "../../infra/factory/RepositoryFactoryDatabase";
 import AccountGatewayHttp from "../../infra/gateway/AccountGatewayHttp";
 import AxiosAdapter from "../../infra/http/AxiosAdapter";
+import RabbitMQAdapter from "../../infra/queue/RabbitMQAdapter";
+import PaymentGatewayHttp from "../../infra/gateway/PaymentGatewayHttp";
 
 test("ends a ride", async () => {
 	const inputCreatePassenger = {
@@ -61,7 +63,14 @@ test("ends a ride", async () => {
 		rideId: outputRequestRide.rideId,
 		date: new Date("2021-03-01T10:40:00")
 	}
-	const endRide = new EndRide(new RideRepositoryDatabase(connection));
+	const queue = new RabbitMQAdapter();
+	await queue.connect();
+	const endRide = new EndRide(
+		new RideRepositoryDatabase(connection),
+		new PaymentGatewayHttp(new AxiosAdapter()),
+		new AccountGatewayHttp(new AxiosAdapter()),
+		queue
+	);
 	await endRide.execute(inputEndRide);
 
 	const getRide = new GetRide(new RepositoryFactoryDatabase(connection));

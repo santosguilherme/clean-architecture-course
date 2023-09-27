@@ -8,16 +8,25 @@ import PayPalGateway from "./infra/gateway/PayPalGateway";
 import ExpressAdapter from "./infra/http/ExpressAdapter";
 import MainController from "./infra/http/MainController";
 import TransactionRepositoryDatabase from "./infra/repository/TransactionRepositoryDatabase";
+import RabbitMQAdapter from "./infra/queue/RabbitMQAdapter";
+import QueueController from "./infra/queue/QueueController";
 
 // Main Composition Root
-const connection = new VercelPostgresAdapter();
-const transactionRepository = new TransactionRepositoryDatabase(connection);
-const httpServer = new ExpressAdapter();
-const registry = Registry.getInstance();
-const paymentGateway = new PayPalGateway();
-const processPayment = new ProcessPayment(transactionRepository, paymentGateway);
-const getTransaction = new GetTransaction(transactionRepository);
-registry.provide("processPayment", processPayment);
-registry.provide("getTransaction", getTransaction);
-new MainController(httpServer);
-httpServer.listen(3001);
+const main = async () => {
+  const connection = new VercelPostgresAdapter();
+	const queue = new RabbitMQAdapter();
+	await queue.connect();
+	const transactionRepository = new TransactionRepositoryDatabase(connection);
+	const httpServer = new ExpressAdapter();
+	const registry = Registry.getInstance();
+	const paymentGateway = new PayPalGateway();
+	const processPayment = new ProcessPayment(transactionRepository, paymentGateway);
+	const getTransaction = new GetTransaction(transactionRepository);
+	registry.provide("processPayment", processPayment);
+	registry.provide("getTransaction", getTransaction);
+	new MainController(httpServer);
+	new QueueController(queue);
+	httpServer.listen(3001);
+};
+
+main();

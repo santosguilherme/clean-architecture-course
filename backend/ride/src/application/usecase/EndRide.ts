@@ -4,6 +4,7 @@ import AxiosAdapter from "../../infra/http/AxiosAdapter";
 import PaymentGatewayHttp from "../../infra/gateway/PaymentGatewayHttp";
 import AccountGatewayHttp from "../../infra/gateway/AccountGatewayHttp";
 import AccountGateway from "../gateway/AccountGateway";
+import Queue from "../../infra/queue/Queue";
 
 type Input = {
   rideId: string,
@@ -15,6 +16,7 @@ export default class EndRide {
     readonly rideRepository: RideRepository,
     readonly paymentGateway: PaymentGateway = new PaymentGatewayHttp(new AxiosAdapter()),
     readonly accountGateway: AccountGateway = new AccountGatewayHttp(new AxiosAdapter()),
+    readonly queue: Queue
   ){}
 
   async execute(input: Input): Promise<void> {
@@ -28,6 +30,7 @@ export default class EndRide {
       email: passenger.email,
       amount
     };
-    await this.paymentGateway.process(paymentInput);
+    // await this.paymentGateway.process(paymentInput);
+		await this.queue.publish("rideCompleted", paymentInput);
   }
 }
